@@ -1,112 +1,112 @@
-import json
+import datetime
 
-# =============================
-#    MI AGENDA DE PELÍCULAS
-# =============================
+# ========================
+# GESTOR DE PELÍCULAS
+# ========================
+# Aplicación de consola para gestionar una agenda de películas con funciones avanzadas.
 # Autor: [Tu Nombre]
-# Descripción: Programa para gestionar una agenda de películas.
-# Permite agregar, mostrar, buscar y eliminar películas guardadas en un archivo JSON.
 
-# Archivo donde se almacenarán los datos
-AGENDA_FILE = "agenda_peliculas.json"
+# Base de datos de películas (simulada en una lista de diccionarios)
+peliculas = [
+    {"titulo": "Inception", "director": "Christopher Nolan", "genero": "Ciencia Ficción", "anio": 2010, "duracion": 148, "clasificacion": 13},
+    {"titulo": "Get Out", "director": "Jordan Peele", "genero": "Terror", "anio": 2017, "duracion": 104, "clasificacion": 18},
+    {"titulo": "Icarus", "director": "Bryan Fogel", "genero": "Documental", "anio": 2017, "duracion": 121, "clasificacion": 18},
+    {"titulo": "Shrek", "director": "Andrew Adamson", "genero": "Animación", "anio": 2001, "duracion": 90, "clasificacion": 0}
+]
 
-# -------------------------------
-# FUNCIONES PARA GESTIONAR PELÍCULAS
-# -------------------------------
+# ==============================
+# FUNCIÓN: PELÍCULA MÁS LARGA
+# ==============================
+def pelicula_mas_larga():
+    pelicula = max(peliculas, key=lambda x: x["duracion"])
+    print(f"\n🎥 La película más larga es '{pelicula['titulo']}' con {pelicula['duracion']} minutos de duración.\n")
 
-def cargar_peliculas():
-    """Carga la lista de películas desde un archivo JSON."""
-    try:
-        with open(AGENDA_FILE, "r", encoding="utf-8") as file:
-            return json.load(file)
-    except (FileNotFoundError, json.JSONDecodeError):
-        return []  # Retorna una lista vacía si el archivo no existe o está dañado
+# ===================================
+# FUNCIÓN: DURACIÓN PROMEDIO (hh:mm)
+# ===================================
+def duracion_promedio():
+    promedio = sum(p["duracion"] for p in peliculas) // len(peliculas)
+    horas, minutos = divmod(promedio, 60)
+    print(f"\nLa duración promedio de las películas es {horas:02}:{minutos:02}.\n")
 
-def guardar_peliculas(peliculas):
-    """Guarda la lista de películas en un archivo JSON."""
-    with open(AGENDA_FILE, "w", encoding="utf-8") as file:
-        json.dump(peliculas, file, indent=4, ensure_ascii=False)
+# ========================================
+# FUNCIÓN: PELÍCULAS ESTRENADAS DESPUÉS DE UN AÑO
+# ========================================
+def peliculas_estreno(anio):
+    nuevas = [p["titulo"] for p in peliculas if p["anio"] > anio]
+    print(f"\nPelículas estrenadas después de {anio}: {', '.join(nuevas) if nuevas else 'Ninguna'}\n")
 
-def agregar_pelicula():
-    """Permite al usuario agregar una nueva película."""
-    titulo = input("Ingrese el título de la película: ").strip()
-    genero = input("Ingrese el género: ").strip()
-    año = input("Ingrese el año de estreno: ").strip()
-    director = input("Ingrese el director: ").strip()
-    
-    pelicula = {"Título": titulo, "Género": genero, "Año": año, "Director": director}
-    peliculas = cargar_peliculas()
-    peliculas.append(pelicula)
-    guardar_peliculas(peliculas)
-    print(f"Película '{titulo}' agregada con éxito.\n")
+# ====================================
+# FUNCIÓN: CUÁNTAS PELÍCULAS SON +18
+# ====================================
+def peliculas_mayores_18():
+    mayores = sum(1 for p in peliculas if p["clasificacion"] >= 18)
+    print(f"\nEl número de películas 18+ es: {mayores}.\n")
 
-def mostrar_peliculas():
-    """Muestra todas las películas guardadas en la agenda."""
-    peliculas = cargar_peliculas()
-    if not peliculas:
-        print("No hay películas en la agenda.")
+# ==================================
+# FUNCIÓN: REAGENDAR UNA PELÍCULA
+# ==================================
+def reagendar_pelicula(nombre, dia, hora, controlador):
+    pelicula = next((p for p in peliculas if p["titulo"].lower() == nombre.lower()), None)
+    if pelicula and controlador.upper() == "N":
+        print(f"\nLa película '{nombre}' fue reagendada con éxito para {dia} a las {hora}.\n")
     else:
-        print("\n🎬 LISTA DE PELÍCULAS 🎬")
-        for i, pelicula in enumerate(peliculas, start=1):
-            print(f"{i}. {pelicula['Título']} ({pelicula['Año']}) - {pelicula['Género']} - Dirigida por {pelicula['Director']}")
+        print(f"\nLa película '{nombre}' no pudo ser reagendada.\n")
 
-def buscar_pelicula():
-    """Busca una película por su título."""
-    titulo = input("Ingrese el título de la película a buscar: ").strip().lower()
-    peliculas = cargar_peliculas()
-    encontrados = [p for p in peliculas if p["Título"].lower() == titulo]
+# ===========================================
+# 👥 FUNCIÓN: REVISAR SI SE PUEDE INVITAR A ALGUIEN
+# ===========================================
+def se_puede_invitar(pelicula, edad, autorizacion):
+    peli = next((p for p in peliculas if p["titulo"].lower() == pelicula.lower()), None)
+    if not peli:
+        print("\nPelícula no encontrada.\n")
+        return
     
-    if encontrados:
-        print("\n🔍 RESULTADOS DE LA BÚSQUEDA 🔍")
-        for pelicula in encontrados:
-            print(f"Título: {pelicula['Título']}\nGénero: {pelicula['Género']}\nAño: {pelicula['Año']}\nDirector: {pelicula['Director']}\n")
+    if edad >= peli["clasificacion"] or (edad < peli["clasificacion"] and autorizacion.upper() == "S"):
+        print("\nSe puede invitar la persona.\n")
     else:
-        print("Película no encontrada.")
+        print("\nNo se puede invitar la persona.\n")
 
-def eliminar_pelicula():
-    """Elimina una película por su título."""
-    titulo = input("Ingrese el título de la película a eliminar: ").strip().lower()
-    peliculas = cargar_peliculas()
-    peliculas_filtradas = [p for p in peliculas if p["Título"].lower() != titulo]
-    
-    if len(peliculas) == len(peliculas_filtradas):
-        print("No se encontró la película para eliminar.")
-    else:
-        guardar_peliculas(peliculas_filtradas)
-        print(f"Película '{titulo}' eliminada con éxito.")
-
-# -------------------------------
+# ==================
 # MENÚ PRINCIPAL
-# -------------------------------
-
+# ==================
 def menu():
-    """Muestra el menú y gestiona la selección del usuario."""
     while True:
-        print("\nMI AGENDA DE PELÍCULAS")
-        print("1. Agregar película")
-        print("2. Mostrar todas las películas")
-        print("3. Buscar película")
-        print("4. Eliminar película")
-        print("5. Salir")
-        opcion = input("Seleccione una opción: ")
-        
+        print("\n========== MENÚ ==========")
+        print("1. Consultar película más larga")
+        print("2. Consultar duración promedio")
+        print("3. Consultar películas estreno")
+        print("4. Consultar películas +18")
+        print("5. Reagendar película")
+        print("6. Revisar si se puede invitar a alguien")
+        print("0. Salir")
+        opcion = input("Selecciona una opción: ")
+
         if opcion == "1":
-            agregar_pelicula()
+            pelicula_mas_larga()
         elif opcion == "2":
-            mostrar_peliculas()
+            duracion_promedio()
         elif opcion == "3":
-            buscar_pelicula()
+            anio = int(input("Ingresa el año: "))
+            peliculas_estreno(anio)
         elif opcion == "4":
-            eliminar_pelicula()
+            peliculas_mayores_18()
         elif opcion == "5":
-            print("¡Hasta luego!")
+            nombre = input("Nombre de la película: ")
+            dia = input("Día de la semana: ")
+            hora = input("Hora (HHMM): ")
+            controlador = input("¿Controlador de horario? (S/N): ")
+            reagendar_pelicula(nombre, dia, hora, controlador)
+        elif opcion == "6":
+            nombre = input("Nombre de la película: ")
+            edad = int(input("Edad del invitado: "))
+            autorizacion = input("¿Autorización de los padres? (S/N): ")
+            se_puede_invitar(nombre, edad, autorizacion)
+        elif opcion == "0":
+            print("\n¡Hasta la próxima!")
             break
         else:
-            print("Opción no válida. Intente de nuevo.")
+            print("Opción inválida. Intenta de nuevo.")
 
-# -------------------------------
-# EJECUCIÓN DEL PROGRAMA
-# -------------------------------
-
-if __name__ == "__main__":
-    menu()
+# Ejecutar el menú
+menu()
