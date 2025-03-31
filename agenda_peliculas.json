@@ -1,0 +1,20 @@
+[
+    {
+        "Título": "The Matrix",
+        "Género": "Ciencia ficción, Acción",
+        "Año": "1999",
+        "Director": "Lana y Lilly Wachowski"
+    },
+    {
+        "Título": "El Padrino",
+        "Género": "Crimen, Drama",
+        "Año": "1972",
+        "Director": "Francis Ford Coppola"
+    },
+    {
+        "Título": "Parasite",
+        "Género": "Drama, Suspenso",
+        "Año": "2019",
+        "Director": "Bong Joon-ho"
+    }
+]
